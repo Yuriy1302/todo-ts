@@ -1,24 +1,55 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+
+import TodoList from './TodoList';
+import TodoItems from './TodoItems';
+
 import './App.css';
 
-function App() {
+type ITask = {
+  text: string,
+  key: number | string
+};
+
+type IItems = ITask[];
+
+const App: React.FC = () => {
+  const [items, setItems] = useState<IItems>([]);
+  const [currentItem, setCurrentItem] = useState<ITask>({ text: '', key: '' });
+
+  const handleInput = (event: React.ChangeEvent<HTMLFormElement>) => {
+    const itemText = event.target.value;
+    const currentItem = { text: itemText, key: Date.now() };
+    setCurrentItem(currentItem);
+  }
+
+  const addItem = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const newItem = currentItem;
+    if(newItem.text !== '') {
+      console.log(newItem);
+      const newItems = [ newItem, ...items ];
+      setItems(newItems);
+      setCurrentItem({ text: '', key: '' });
+    }
+  }
+
+  const deleteItem = (key: string) => {
+    const filterItems = items.filter((item) => item.key !== key);
+    setItems(filterItems);
+  }
+  
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>todo</h1>
+      <TodoList
+        currentItem={currentItem}
+        handleInput={handleInput}
+        addItem={addItem}
+      />
+      <TodoItems
+        deleteItem={deleteItem}
+        items={items}
+      />
     </div>
   );
 }
